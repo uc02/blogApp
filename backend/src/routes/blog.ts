@@ -21,7 +21,8 @@ blogrouter.use('/*', async (c, next) => {
   try {
     const user = await verify(token, c.env.JWT_SECRET)
   if (user) {
-    c.set("userId", user.id);
+    const userId = typeof user.id === "string" ? user.id : String(user.id);
+    c.set("userId", userId);
     await next()
   } else {
     return c.json({ message: "you are not logged in" }, 403)
