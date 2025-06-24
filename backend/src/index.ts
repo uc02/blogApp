@@ -10,8 +10,8 @@ import { blogrouter } from "./routes/blog";
   }
  }>()
 
- app.route('/api/v1/user', userRouter)
- app.route('/api/v1/blog', blogrouter)
+ app.route('https://backend.upendrachauhan0206.workers.dev/api/v1/user', userRouter)
+ app.route('https://backend.upendrachauhan0206.workers.dev/api/v1/blog', blogrouter)
 
 
 export default app;

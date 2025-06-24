@@ -16,13 +16,22 @@ export const blogrouter = new Hono<{
 
 
 blogrouter.use('/*', async (c, next) => {
-  const authHeader = c.req.header('authorization')?.split(' ')[1] || ''
-  const user = await verify(authHeader, c.env.JWT_SECRET)
-  if(user){
+  const authHeader = c.req.header('authorization') || ''
+  const token = authHeader.split(' ')[1]
+  try {
+    const user = await verify(token, c.env.JWT_SECRET)
+  if (user) {
     c.set("userId", user.id);
-     await next()
+    await next()
   } else {
-    return c.json({ message: "you are not logged in"},403)
+    return c.json({ message: "you are not logged in" }, 403)
+  }
+  } catch (error) {
+    const message = error instanceof Error
+      ? error.message
+      : 'Unknown error';
+
+      return c.json({ message })
   }
 });
 
@@ -31,27 +40,31 @@ blogrouter.get('/', async (c) => {
     datasourceUrl: c.env?.DATABASE_URL,
   }).$extends(withAccelerate());
 
-  const body = await c.req.json()
+  const authorId = c.get('userId')
   try {
-    const blog = await prisma.post.findFirst({
-    where: { 
-      id: body.id 
-    },
-  });
-  return c.json({ blog },202)
+    const blog = await prisma.post.findMany({
+      where: {
+        authorId: authorId
+      },
+    });
+    return c.json({ blog }, 202)
   } catch (error) {
-    return c.json({message: "error while fetching blog"},404)
+   const message = error instanceof Error 
+     ? error.message
+     : 'Unknown error'
+
+     return c.json({message}, 400)
   }
 })
 
-blogrouter.post('/postblog', async (c) => {
+blogrouter.post('/', async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env?.DATABASE_URL,
   }).$extends(withAccelerate());
   const body = await c.req.json();
-    const authorId = c.get("userId")
+  const authorId = c.get("userId")
 
-  try { 
+  try {
     const blog = await prisma.post.create({
       data: {
         title: body.title,
@@ -59,16 +72,20 @@ blogrouter.post('/postblog', async (c) => {
         authorId: authorId,
         published: false
       }
-    }) 
+    })
     return c.json({
       id: blog.id
     })
   } catch (error) {
-    return c.json({ message: error}, 404)
+    const message = error instanceof Error
+      ? error.message
+      : 'Unknown error'
+
+    return c.json({ message }, 500)
   }
 })
 
-blogrouter.put('/',async (c) => {
+blogrouter.put('/', async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env?.DATABASE_URL,
   }).$extends(withAccelerate());
@@ -77,7 +94,7 @@ blogrouter.put('/',async (c) => {
 
   try {
     const blog = await prisma.post.update({
-      where: {id: body.id},
+      where: { id: body.id },
       data: {
         title: body.title,
         content: body.content,
@@ -86,9 +103,13 @@ blogrouter.put('/',async (c) => {
 
     return c.json({
       id: blog.id
-    },200)
+    }, 200)
   } catch (error) {
-return c.json({ message: error.message || "Unknown error" }, 404);
+    const message = error instanceof Error
+      ? error.message
+      : 'Unknown error'
+
+    return c.json({ message }, 500)
   }
 })
 
@@ -98,10 +119,17 @@ blogrouter.get('/bulk', async (c) => {
     datasourceUrl: c.env?.DATABASE_URL,
   }).$extends(withAccelerate());
 
-  const blogs = await prisma.post.findMany({
-    select:{ title: true}
+  try {
+    const blogs = await prisma.post.findMany({
+    select: { title: true, content: true,id: true }
   })
+  return c.json({ blogs }, 200)
+  } catch (error) {
+    const message = error instanceof  Error 
+      ? error.message
+      : 'Unknown error'
 
-  return c.json({blogs},200)
+      return c.json({ message }, 500)
+  }
 })
 
