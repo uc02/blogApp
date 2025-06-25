@@ -21,8 +21,8 @@ userRouter.post('/signup', async (c) => {
 
   const { success } = signupSchema.safeParse(body)
 
-  if(!success){
-    return c.json({ message: "Inputs are incorrect"},411)
+  if (!success) {
+    return c.json({ message: "Inputs are incorrect" }, 411)
   }
 
   try {
@@ -56,10 +56,9 @@ userRouter.post('/signin', async (c) => {
 
   const { success } = signinSchema.safeParse(body)
 
-  if(!success){
-    return c.json({ message: 'invalid input'},411)
+  if (!success) {
+     return c.json({ message: "Inputs are incorrect" }, 406)
   }
-
   try {
     const existingUser = await prisma.user.findFirst({
       where: {

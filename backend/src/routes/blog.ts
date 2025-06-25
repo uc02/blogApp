@@ -21,19 +21,19 @@ blogrouter.use('/*', async (c, next) => {
   const token = authHeader.split(' ')[1]
   try {
     const user = await verify(token, c.env.JWT_SECRET)
-  if (user) {
-    const userId = typeof user.id === "string" ? user.id : String(user.id);
-    c.set("userId", userId);
-    await next()
-  } else {
-    return c.json({ message: "you are not logged in" }, 403)
-  }
+    if (user) {
+      const userId = typeof user.id === "string" ? user.id : String(user.id);
+      c.set("userId", userId);
+      await next()
+    } else {
+      return c.json({ message: "you are not logged in" }, 403)
+    }
   } catch (error) {
     const message = error instanceof Error
       ? error.message
       : 'Unknown error';
 
-      return c.json({ message })
+    return c.json({ message })
   }
 });
 
@@ -51,11 +51,11 @@ blogrouter.get('/', async (c) => {
     });
     return c.json({ blog }, 202)
   } catch (error) {
-   const message = error instanceof Error 
-     ? error.message
-     : 'Unknown error'
+    const message = error instanceof Error
+      ? error.message
+      : 'Unknown error'
 
-     return c.json({message}, 400)
+    return c.json({ message }, 400)
   }
 })
 
@@ -68,8 +68,8 @@ blogrouter.post('/', async (c) => {
 
   const { success } = createBlogSchema.safeParse(body)
 
-  if(!success){
-    return c.json({ message: 'invalid inputs'},411)
+  if (!success) {
+    return c.json({ message: 'invalid inputs' }, 411)
   }
 
   try {
@@ -101,8 +101,8 @@ blogrouter.put('/', async (c) => {
 
   const { success } = updateBlogSchema.safeParse(body)
 
-  if(!success){
-    return c.json({message: 'invalid inputs'},411)
+  if (!success) {
+    return c.json({ message: 'invalid inputs' }, 411)
   }
 
   try {
@@ -126,9 +126,9 @@ blogrouter.put('/', async (c) => {
   }
 })
 
-blogrouter.get('/:id', async(c) => {
+blogrouter.get('/:id', async (c) => {
   const id = c.req.param('id');
- const prisma = new PrismaClient({
+  const prisma = new PrismaClient({
     datasourceUrl: c.env?.DATABASE_URL,
   }).$extends(withAccelerate());
 
@@ -140,9 +140,9 @@ blogrouter.get('/:id', async(c) => {
     })
     return c.json({ blog }, 200)
   } catch (error) {
-    return c.json({ message: 'may be wrong id'}, 405)
+    return c.json({ message: 'may be wrong id' }, 405)
   }
-  
+
 })
 
 //pagination
@@ -153,15 +153,15 @@ blogrouter.get('/bulk', async (c) => {
 
   try {
     const blogs = await prisma.post.findMany({
-    select: { title: true, content: true,id: true }
-  })
-  return c.json({ blogs }, 200)
+      select: { title: true, content: true, id: true }
+    })
+    return c.json({ blogs }, 200)
   } catch (error) {
-    const message = error instanceof  Error 
+    const message = error instanceof Error
       ? error.message
       : 'Unknown error'
 
-      return c.json({ message }, 500)
+    return c.json({ message }, 500)
   }
 })
 
