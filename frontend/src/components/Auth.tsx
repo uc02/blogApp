@@ -14,7 +14,7 @@ const Auth = ({ type }: { type: "signup" | "signin" }) => {
 
   async function sendRequest() {
     try {
-      const response = await axios.post(`${BACKEND_URL}/api/v1/user/signup`, postInputs)
+      const response = await axios.post(`${BACKEND_URL}/api/v1/user/ ${type === "signup" ? "signup" : "signin"}`, postInputs)
       const jwt = response.data;
       localStorage.setItem("token", jwt);
       navigate("/blogs")
@@ -62,7 +62,7 @@ const Auth = ({ type }: { type: "signup" | "signin" }) => {
             }} />
           </div>
 
-          <button onClick={sendRequest} type="button" className="w-full text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 mt-8">
+          <button  onClick={sendRequest} type="button" className="w-full text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 mt-8">
             {type === "signup" ? "Sign Up" : "Sign In"}
           </button>
 

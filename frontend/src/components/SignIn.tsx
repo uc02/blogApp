@@ -7,19 +7,25 @@ import axios from "axios"
 const SignIn = () => {
   const navigate = useNavigate()
   const [postInputs, setPostInputs] = useState<SigninSchema>({
-    emai: "",
+    email: "",
     password: ""
   })
 
  async function sendRequest() {
   try {
-    const response = await axios.post(`${BACKEND_URL}/api/v1/user/signin}`, postInputs)
+    const response = await axios.post(`${BACKEND_URL}/api/v1/user/signin`, postInputs)
     const jwt = response.data;
     localStorage.setItem("token",jwt);
     navigate("/blogs")
 
-  } catch (e) {
-    alert("signin failed")
+  } catch (error) {
+    console.error("Signin failed:", error);
+
+    if(axios.isAxiosError(error)){
+      alert(error.response?.data?.message || "Signin failed")
+    }else {
+      alert("Signin failed. Please try again.")
+    }
   }
  }
   return (
@@ -40,14 +46,14 @@ const SignIn = () => {
 
           <div className="pt-8">
 
-            <LabelledInput label="Email" placeholder="Enter Your name" onChange={(e) => {
+            <LabelledInput label="Email" placeholder="Enter Your Email" onChange={(e) => {
               setPostInputs({
                 ...postInputs,
-                emai: e.target.value
+                email: e.target.value
               })
             }} /> 
             
-            <LabelledInput label="Password" type={"password"} placeholder="Set the password" onChange={(e) => {
+            <LabelledInput label="Password" type={"password"} placeholder="Enter your Password" onChange={(e) => {
               setPostInputs({
                 ...postInputs,
                 password: e.target.value

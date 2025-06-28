@@ -55,7 +55,6 @@ userRouter.post('/signin', async (c) => {
   const body = await c.req.json()
 
   const { success } = signinSchema.safeParse(body)
-
   if (!success) {
      return c.json({ message: "Inputs are incorrect" }, 406)
   }
