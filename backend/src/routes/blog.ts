@@ -81,7 +81,8 @@ blogrouter.post('/', async (c) => {
       }
     })
     return c.json({
-      id: blog.id
+      id: blog.id,
+      authorId: authorId
     })
   } catch (error) {
     const message = error instanceof Error
@@ -126,34 +127,23 @@ blogrouter.put('/', async (c) => {
   }
 })
 
-blogrouter.get('/:id', async (c) => {
-  const id = c.req.param('id');
-  const prisma = new PrismaClient({
-    datasourceUrl: c.env?.DATABASE_URL,
-  }).$extends(withAccelerate());
-
-  try {
-    const blog = await prisma.post.findFirst({
-      where: {
-        id: id
-      }
-    })
-    return c.json({ blog }, 200)
-  } catch (error) {
-    return c.json({ message: 'may be wrong id' }, 405)
-  }
-
-})
-
 //pagination
 blogrouter.get('/bulk', async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env?.DATABASE_URL,
   }).$extends(withAccelerate());
-
   try {
     const blogs = await prisma.post.findMany({
-      select: { title: true, content: true, id: true }
+      select: {
+        title: true,
+        content: true,
+        id: true,
+        author: {
+          select: {
+            name: true
+          }
+        }
+      }
     })
     return c.json({ blogs }, 200)
   } catch (error) {
@@ -165,3 +155,41 @@ blogrouter.get('/bulk', async (c) => {
   }
 })
 
+blogrouter.get('/:id', async (c) => {
+    const id = c.req.param("id");
+    const prisma = new PrismaClient({
+      datasourceUrl: c.env.DATABASE_URL,
+    }).$extends(withAccelerate())
+
+    try {
+        const blog = await prisma.post.findFirst({
+            where: {
+                id: id
+            },
+            select: {
+                id: true,
+                title: true,
+                content: true,
+                author: {
+                    select: {
+                        name: true
+                    }
+                }
+            }
+        })
+    
+        return c.json({
+            blog
+        });
+    } catch(e) {
+        c.status(411); // 4
+        return c.json({
+            message: "Error while fetching blog post"
+        });
+    }
+})
+
+
+
+
+  
