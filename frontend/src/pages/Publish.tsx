@@ -15,18 +15,19 @@ export const Publish = () => {
             <div className="max-w-screen-lg w-full">
                 <input onChange={(e) => {
                     setTitle(e.target.value)
-                }} type="text" className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Title" />
+                }} type="text" className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block  p-2.5" placeholder="Title" />
 
                 <TextEditor onChange={(e) => {
                     setDescription(e.target.value)
                 }} />
                 <button onClick={async () => {
+                    const token = localStorage.getItem('token')
                     const response = await axios.post(`${BACKEND_URL}/api/v1/blog`, {
                         title,
                         content: description
                     }, {
                         headers: {
-                            Authorization: localStorage.getItem("token")
+                            Authorization: `Bearer ${token}`
                         }
                     });
                     navigate(`/blog/${response.data.id}`)
