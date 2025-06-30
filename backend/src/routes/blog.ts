@@ -140,7 +140,7 @@ blogrouter.get('/bulk', async (c) => {
         id: true,
         author: {
           select: {
-            name: true
+            name: true 
           }
         }
       }
@@ -172,7 +172,7 @@ blogrouter.get('/:id', async (c) => {
                 content: true,
                 author: {
                     select: {
-                        name: true
+                        name: true || "Anonymous"
                     }
                 }
             }
@@ -182,7 +182,7 @@ blogrouter.get('/:id', async (c) => {
             blog
         });
     } catch(e) {
-        c.status(411); // 4
+        c.status(411); 
         return c.json({
             message: "Error while fetching blog post"
         });
